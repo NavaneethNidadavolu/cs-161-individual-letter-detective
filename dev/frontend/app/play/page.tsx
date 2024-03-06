@@ -100,7 +100,7 @@ export default function Play() {
                             {
                                 String(level.number).split("").map((item, index) => {
                                     return (
-                                        <button onClick={() => {
+                                        <button key={index} onClick={() => {
                                             if (level.hints_left > 0) {
                                                 if (level.hints[index]) {
                                                     toast.info("Hint already revealed");
