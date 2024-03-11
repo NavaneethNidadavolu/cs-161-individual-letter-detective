@@ -84,26 +84,27 @@ export default function Play() {
 
     function revealNext(currentIndex: number, isOpen: boolean) {
         console.log(currentIndex, isOpen);
-        if (!isOpen) {
-            if (currentIndex < revealingPattern.length) {
-                setTimeout(() => {
-                    setCurrentReveal(revealingPattern[currentIndex + 1]);
-                    revealNext(currentIndex + 1, true);
-                }, 1000);
-            }
-            else {
-                setCurrentReveal(-1);
-                setLevel({
-                    ...level,
-                    isRevealed: true
-                });
-            }
-        }
-        else {
+
+        if (isOpen) {
             setTimeout(() => {
                 setCurrentReveal(-1);
                 revealNext(currentIndex, false);
             }, 1000);
+            return;
+        }
+
+        if (currentIndex < revealingPattern.length && !isOpen) {
+            setTimeout(() => {
+                setCurrentReveal(revealingPattern[currentIndex + 1]);
+                revealNext(currentIndex + 1, true);
+            }, 1000);
+        }
+        else {
+            setCurrentReveal(-1);
+            setLevel({
+                ...level,
+                isRevealed: true
+            });
         }
     }
 
@@ -236,7 +237,7 @@ export default function Play() {
                                         <button className='bg-black text-white text-center rounded-[10px] px-4 py-2 m-2 hover:scale-110 mt-32' disabled={revealing} onClick={() => {
                                             console.log("Current Number: " + level.number);
                                             setRevealing(true);
-                                            revealNext(-1);
+                                            revealNext(-1, false);
                                         }}>
                                             Start
                                         </button>
