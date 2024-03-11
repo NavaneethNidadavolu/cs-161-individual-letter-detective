@@ -7,16 +7,12 @@ Github Repository: https://github.com/navaneethnivol/cs-161-individual-letter-de
 
 Milestones with deadlines
 
-Week 1: Setup repo and flask application, implement authentication
-
-Week 2: Build the frontend application
-
-Week 3: Build the backend apis and multiplayer logic
-
-Week 4: Integrate backend with frontend
-
-Week 5: Testing and UI enhancements
-
+M1 (2/6 - 2/15): Setting up Github and Flask App
+M2 (2/20 - 2/29): Create Wireframes, and basic UI
+M3 (3/5 - 3/14): Complete UI, Add log-in, sign-up, and log-out
+M4 (3/19 - 3/28): Implement backend apis
+M5 (4/2 - 4/11): 
+M6 (4/16 - Finals): Testing for bugs and making visuals a little bit better
 
 Front-end and back-end technologies
 

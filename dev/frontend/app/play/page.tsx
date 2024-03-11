@@ -63,7 +63,7 @@ export default function Play() {
 
     useEffect(() => {
 
-        let numLength = 8;
+        let numLength = 5;
         let number = generateRandomNumber(numLength);
 
         setLevel({
@@ -82,19 +82,28 @@ export default function Play() {
         setLoading(false);
     }, []);
 
-    function revealNext(currentIndex: number) {
-        if (currentIndex < revealingPattern.length) {
-            setTimeout(() => {
-                setCurrentReveal(revealingPattern[currentIndex + 1]);
-                revealNext(currentIndex + 1);
-            }, 1000);
+    function revealNext(currentIndex: number, isOpen: boolean) {
+        console.log(currentIndex, isOpen);
+        if (!isOpen) {
+            if (currentIndex < revealingPattern.length) {
+                setTimeout(() => {
+                    setCurrentReveal(revealingPattern[currentIndex + 1]);
+                    revealNext(currentIndex + 1, true);
+                }, 1000);
+            }
+            else {
+                setCurrentReveal(-1);
+                setLevel({
+                    ...level,
+                    isRevealed: true
+                });
+            }
         }
         else {
-            setCurrentReveal(-1);
-            setLevel({
-                ...level,
-                isRevealed: true
-            });
+            setTimeout(() => {
+                setCurrentReveal(-1);
+                revealNext(currentIndex, false);
+            }, 1000);
         }
     }
 
