@@ -12,8 +12,10 @@ export default function NavBar() {
     useGoogleOneTapLogin({
         onSuccess: credentialResponse => {
             console.log(credentialResponse);
-            const decodedToken = jwtDecode(credentialResponse.credential);
-            console.log(decodedToken);
+            if (credentialResponse.credential) {
+                const decodedToken = jwtDecode(credentialResponse.credential);
+                console.log(decodedToken);
+            }
         },
         onError: () => {
             console.log('Login Failed');
