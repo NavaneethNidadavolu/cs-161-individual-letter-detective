@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Lexend_Deca } from "next/font/google";
 import { Analytics } from '@vercel/analytics/react';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Toaster } from 'sonner'
 
 import NavBar from "@/components/navbar";
@@ -21,12 +22,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full">
-      <body className={`${lexend_deca.className} w-11/12 sm:w-4/5 items-center content-center mx-auto pt-10 bg-[var(--bg-color)]`}>
-        <NavBar></NavBar>
-        {children}
-        <Analytics></Analytics>
-        <Toaster richColors position="bottom-right" />
-      </body>
+      <GoogleOAuthProvider clientId="567225134808-mdlscrfrgoe31rth1f2u35e06cpjmmhv.apps.googleusercontent.com">
+        <body className={`${lexend_deca.className} w-11/12 sm:w-4/5 items-center content-center mx-auto pt-10 bg-[var(--bg-color)]`}>
+          <NavBar></NavBar>
+          {children}
+          <Analytics></Analytics>
+          <Toaster richColors position="bottom-right" />
+        </body>
+      </GoogleOAuthProvider>
     </html>
   );
 }
