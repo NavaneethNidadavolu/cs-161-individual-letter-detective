@@ -66,6 +66,8 @@ export default function Play() {
         let numLength = 5;
         let number = generateRandomNumber(numLength);
 
+        console.log("Number: " + number);
+
         setLevel({
             level: 1,
             score: 0,
@@ -184,7 +186,7 @@ export default function Play() {
                                             }
 
                                         }}>
-                                            <div key={index} className={`bg-[var(--bg-num-block)] w-14 h-14 rounded-[10px] flex flex-col items-center justify-center mx-2 ` + (level.hints[index] && "border-4 border-sky-500")}>
+                                            <div key={index} className={`bg-[var(--bg-num-block)] w-14 h-14 rounded-[10px] flex flex-col items-center justify-center mx-2 ` + (currentReveal == index && "border-4 border-green-500 ") + (level.hints[index] && "border-4 border-sky-500")}>
                                                 {(currentReveal == index || level.hints[index])
                                                     ? (<div className="text-2xl">{item}</div>)
                                                     : (<div className="bg-[var(--bg-num-block-hide)] w-5 h-5 rounded-full"></div>)
