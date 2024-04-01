@@ -1,88 +1,145 @@
-from flask import Flask,render_template,redirect,request
+import os
+import jwt
+import psycopg2
+from flask import Flask, request
+from dotenv import load_dotenv
 
-import functions
-  
-app = Flask(__name__) 
+# Load environment variables from .env file
+load_dotenv()
 
-secret_word = None
-word_set = None
-to_display = None
-tries = None
-blanks = None
+# Defining database connection parameters
+POSTGRES_USER = os.getenv("POSTGRES_USER")
+POSTGRES_HOST = os.getenv("POSTGRES_HOST")
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
+POSTGRES_DATABASE = os.getenv("POSTGRES_DATABASE")
+
+# Initialize Flask application
+app = Flask(__name__)
+
+# Define database connection parameters
+db_params = {
+    "host": POSTGRES_HOST,
+    "database": POSTGRES_DATABASE,
+    "user": POSTGRES_USER,
+    "password": POSTGRES_PASSWORD,
+    "port": "5432"
+}
+
+# Define a function to connect to the database
+def connect_to_db():
+    try:
+        connection = psycopg2.connect(**db_params)
+        cursor = connection.cursor()
+        print("Connected to the database.")
+        return connection, cursor
+    except (Exception, psycopg2.Error) as error:
+        print(f"Error connecting to the database: {error}")
+        return None, None
+
+# Define a function to close the database connection
+def close_db_connection(connection, cursor):
+    if connection:
+        cursor.close()
+        connection.close()
+        print("Database connection closed.")
 
 
-@app.after_request
-def set_response_headers(response):
-    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-    response.headers['Pragma'] = 'no-cache'
-    response.headers['Expires'] = '0'
-    return response
-  
-@app.route('/') 
-def hello_world(): 
-    return render_template('home.html')
+# Define the home route
+@app.route('/')
+def home():
+    return {'message': 'Hello World'}, 200
 
 
-@app.route('/game')
-def game():
-	global secret_word
-	global word_set
-	global to_display
-	global tries
-	global blanks	
-	secret_word = functions.get_random_word()
-	word_set = "abcdefghijklmnopqrstuvwxyz"
-	blanks = 0
-	to_display = []
-	for i,char in enumerate(secret_word):
-		if char==" ":
-			to_display.append(" ")
-			
+# Define the middleware to read JWT from header
+@app.before_request
+def read_jwt_from_header():
+	if request.path == '/savegame':
+		auth_token = request.headers.get('auth-token')
+		if auth_token:
+			try:
+				decoded_token = jwt.decode(auth_token, options={"verify_signature": False})
+				request.decoded_token = decoded_token
+
+			except jwt.exceptions.InvalidTokenError as error:
+				print(f"Error decoding JWT: {error}")
+				return {'message': 'Invalid auth-token'}, 401
 		else:
-			to_display.append("_")
-			blanks+=1
-
-	tries = 0
-	return render_template('game.html',to_display=to_display,word_set=word_set)
+			return {'message': 'auth-token not found'}, 401
 
 
-@app.route('/add_char',methods=["POST"])
-def add_char():
-	global secret_word
-	global word_set
-	global to_display
-	global tries
-	global blanks	
+# Define the savegame route
+@app.route('/savegame', methods=['POST'])
+def saveGame():
+    
+	print(request.decoded_token)
 
-	letter = request.form["letter"]
+	connection, cursor = connect_to_db()
 	
-	chance_lost = True
-	for i,char in enumerate(secret_word):regg
-		if char==letter:
-			chance_lost = False
-			to_display[i] = letter
-			blanks-=1
+	if connection is None or cursor is None:
+		return {'message': 'Error connecting to the database'}, 500
+	
+	try:
+		# Get the game data from the request body
+		body = request.get_json()
+		
+		if not body:
+			return {'message': 'body required'}, 500
+		
+		if not body.get('score'):
+			return {'message': 'Invalid body'}, 500
+		
+		data = [(request.decoded_token.get('sub'), request.decoded_token.get('name'), request.decoded_token.get('picture'), body.get('score'))]
+		print(data)
+		cursor.executemany("INSERT INTO numrecall_users (user_id, user_name, user_pic, score) VALUES (%s, %s, %s, %s)", data)
+		connection.commit()
+		
+		return {'message': 'Game data saved successfully'}, 200
+	
+	except (Exception, psycopg2.Error) as error:
+		print(f"Error saving game data: {error}")
+		return {'message': 'Error saving game data'}, 500
+	finally:
+		# Close the database connection
+		close_db_connection(connection, cursor)
 
-	word_set = word_set.replace(letter,'')
-	print("blanks",blanks)
-	if chance_lost==True:
-		tries += 1
-		if tries==6:
-			return redirect('/game_lost')
 
-	if blanks==0:
-		return redirect('/game_won')
+# Define the leaderboard route
+@app.route('/leaderboard')
+def leaderboard():
+	
+	connection, cursor = connect_to_db()
+	if connection is None or cursor is None:
+		return {'message': 'Error connecting to the database'}, 500
 
-	return render_template('game.html',to_display=to_display,word_set=word_set,tries="/static/img/hangman%d.png"%tries)
+	try:
+		# Execute the query to fetch data from the numrecall table
+		cursor.execute("SELECT user_id, user_name, user_pic, score FROM numrecall_users ORDER BY score DESC LIMIT 10")
+		# Fetch all the rows from the result set
+		rows = cursor.fetchall()
+		# Create a list to store the leaderboard data
+		leaderboard = []
+		# Iterate over the rows and create a dictionary for each row
+		for row in rows:
+			leaderboard.append({
+				'user_id': row[0],
+				'user_name': row[1],
+    			'user_pic': row[2],
+    			'score': row[3]
+			})
+		# Return the leaderboard data as JSON
+		return {'leaderboard': leaderboard}, 200
+	except (Exception, psycopg2.Error) as error:
+		print(f"Error fetching data from the database: {error}")
+		return {'message': 'Error fetching data from the database'}, 500
+	finally:
+		# Close the database connection
+		close_db_connection(connection, cursor)
 
 
-@app.route('/game_lost')
-def game_lost_landing():
-	return render_template('game_lost.html')
-
-@app.route('/game_won')
-def game_won_landing():
-	return render_template('game_won.html')
-
-if __name__ == '__main__': 
-    app.run() 
+# Run the Flask application
+if __name__ == '__main__':
+    connection, cursor = connect_to_db()    
+    try:
+        app.run(host='0.0.0.0', port=4000, debug=False)
+    finally:
+        close_db_connection(connection, cursor)
