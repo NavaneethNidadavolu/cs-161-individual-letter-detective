@@ -1,7 +1,7 @@
 import Footer from "@/components/footer";
 
 async function getLeaderboardData() {
-    const response = await fetch(`${process.env.API_ENDPOINT}/leaderboard`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/leaderboard`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

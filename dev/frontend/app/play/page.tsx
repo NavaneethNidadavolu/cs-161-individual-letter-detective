@@ -140,7 +140,7 @@ export default function Play() {
     }
 
     async function saveGame() {
-        const response = await fetch(`${process.env.API_ENDPOINT}/savegame`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/savegame`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
