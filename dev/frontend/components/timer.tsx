@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const CountdownTimer = ({ initialMinutes = 5, startTimer, onComplete }: { initialMinutes: number, startTimer: boolean, onComplete: any }) => {
+const CountdownTimer = ({ initialMinutes = 5, startTimer, onComplete }: { initialMinutes: number, startTimer: boolean, onComplete: () => void }) => {
 
     const [time, setTime] = useState({
         minutes: initialMinutes,
@@ -8,26 +8,25 @@ const CountdownTimer = ({ initialMinutes = 5, startTimer, onComplete }: { initia
     });
 
     useEffect(() => {
-        let countdown: any;
+        let countdown: NodeJS.Timeout;
         if (startTimer) {
             countdown = setInterval(() => {
-                if (time.minutes === 0 && time.seconds === 0) {
-                    clearInterval(countdown);
-                    if (onComplete) onComplete();
-                } else {
-                    setTime(prevTime => {
-                        if (prevTime.seconds === 0) {
-                            return { minutes: prevTime.minutes - 1, seconds: 59 };
-                        } else {
-                            return { ...prevTime, seconds: prevTime.seconds - 1 };
-                        }
-                    });
-                }
+                setTime(prevTime => {
+                    if (prevTime.minutes === 0 && prevTime.seconds === 0) {
+                        clearInterval(countdown);
+                        if (onComplete) onComplete();
+                        return { minutes: initialMinutes, seconds: 0 };
+                    } else if (prevTime.seconds === 0) {
+                        return { minutes: prevTime.minutes - 1, seconds: 59 };
+                    } else {
+                        return { ...prevTime, seconds: prevTime.seconds - 1 };
+                    }
+                });
             }, 1000);
         }
 
         return () => clearInterval(countdown);
-    }, [startTimer]);
+    }, [startTimer, initialMinutes, onComplete]);
 
     return (
         <div>

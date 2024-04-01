@@ -44,7 +44,7 @@ function generateRandomNumber(length: number) {
 export default function Play() {
 
     const start_length = 5;
-    const level_duration = 5;
+    const level_duration = 1;
     const progress: LevelData[] = [];
     const prevNumbers = new Set<string>();
     const [timerStarted, setTimerStarted] = useState(false);
@@ -78,7 +78,6 @@ export default function Play() {
             number = generateRandomNumber(numLength);
         }
 
-        console.log("Number: " + number);
         prevNumbers.add(number);
 
         setLevel({
@@ -92,13 +91,19 @@ export default function Play() {
             isRevealed: false
         });
 
+        setRevealing(false);
+        setCurrentReveal(-1);
+        setCurrentGuess("");
+        setgameOver(false);
+
         let pattern = Array.from({ length: number.length }, (_, index) => index);
         setRevealingPattern(shuffleArray(pattern));
-        setLoading(false);
+        setTimeout(() => {
+            setLoading(false);
+        }, 500);
     }
 
     function revealNext(currentIndex: number, isOpen: boolean) {
-        console.log(currentIndex, isOpen);
 
         if (isOpen) {
             setTimeout(() => {
@@ -108,7 +113,7 @@ export default function Play() {
             return;
         }
 
-        if (currentIndex < revealingPattern.length && !isOpen) {
+        if (currentIndex < revealingPattern.length - 1 && !isOpen) {
             setTimeout(() => {
                 setCurrentReveal(revealingPattern[currentIndex + 1]);
                 revealNext(currentIndex + 1, true);
@@ -116,11 +121,13 @@ export default function Play() {
         }
         else {
             setCurrentReveal(-1);
-            setLevel({
-                ...level,
-                isRevealed: true
-            });
-            setTimerStarted(true);
+            setTimeout(() => {
+                setLevel({
+                    ...level,
+                    isRevealed: true
+                });
+                setTimerStarted(true);
+            }, 1000);
         }
     }
 
@@ -140,7 +147,7 @@ export default function Play() {
                 'auth-token': localStorage.getItem('auth-token') || ""
             },
             body: JSON.stringify({
-                score: totalScore
+                score: calculateTotalScore()
             }),
         });
 
@@ -149,6 +156,12 @@ export default function Play() {
         }
         else {
             toast.error("Failed to save game");
+        }
+    }
+
+    function finish() {
+        if (localStorage.getItem('login')) {
+            saveGame();
         }
     }
 
@@ -211,6 +224,8 @@ export default function Play() {
                                                 <div>Time Left: </div>
                                                 <div className="mx-2"><CountdownTimer startTimer={timerStarted} initialMinutes={level_duration} onComplete={() => {
                                                     toast.warning("Time's up");
+                                                    setgameOver(true);
+                                                    finish();
                                                 }} /></div>
                                             </div>
                                         </div>
@@ -289,18 +304,15 @@ export default function Play() {
                                                                             score: 0,
                                                                         });
                                                                         setgameOver(true);
-                                                                        saveGame();
+                                                                        finish();
                                                                     }
-                                                                    else if (level.guess_left <= 4) {
+                                                                    else {
                                                                         setLevel({
                                                                             ...level,
                                                                             score: level.score - 10,
+                                                                            guess_left: level.guess_left - 1
                                                                         });
                                                                     }
-                                                                    setLevel({
-                                                                        ...level,
-                                                                        guess_left: level.guess_left - 1
-                                                                    });
                                                                 }
                                                             }
                                                             else {
