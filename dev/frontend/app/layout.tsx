@@ -21,13 +21,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="h-screen">
       <GoogleOAuthProvider clientId="567225134808-mdlscrfrgoe31rth1f2u35e06cpjmmhv.apps.googleusercontent.com">
         <body className={`${lexend_deca.className} w-11/12 sm:w-4/5 items-center content-center mx-auto pt-10 bg-[var(--bg-color)]`}>
-          <NavBar></NavBar>
+          <NavBar />
           {children}
-          <Analytics></Analytics>
-          <Toaster richColors position="bottom-right" />
+          <Analytics />
+          <Toaster richColors position="top-right" />
         </body>
       </GoogleOAuthProvider>
     </html>

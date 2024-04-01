@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import CountdownTimer from "../../components/timer";
 
 interface LevelData {
     level: number,
@@ -40,15 +41,18 @@ function generateRandomNumber(length: number) {
     return randomNumber;
 }
 
-
 export default function Play() {
 
+    const start_length = 5;
+    const level_duration = 5;
     const progress: LevelData[] = [];
     const prevNumbers = new Set<string>();
+    const [timerStarted, setTimerStarted] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [totalScore, setTotalScore] = useState(0);
     const [level, setLevel] = useState<LevelData>({
         level: 0,
-        score: 0,
+        score: 100,
         number: "",
         time_left: 0,
         hints_left: 0,
@@ -60,20 +64,29 @@ export default function Play() {
     const [currentReveal, setCurrentReveal] = useState(-1);
     const [revealingPattern, setRevealingPattern] = useState<number[]>([]);
     const [currentGuess, setCurrentGuess] = useState("");
+    const [gameOver, setgameOver] = useState(false);
 
     useEffect(() => {
+        generateLevel(start_length);
+    }, []);
 
-        let numLength = 5;
+    function generateLevel(numLength: number) {
+
         let number = generateRandomNumber(numLength);
 
+        while (prevNumbers.has(number)) {
+            number = generateRandomNumber(numLength);
+        }
+
         console.log("Number: " + number);
+        prevNumbers.add(number);
 
         setLevel({
-            level: 1,
-            score: 0,
+            level: numLength - start_length + 1,
+            score: 100,
             number: number,
             time_left: 300,
-            hints_left: Math.ceil((number.length / 2) / 2),
+            hints_left: 2,
             guess_left: 5,
             hints: Array(number.length).fill(false),
             isRevealed: false
@@ -82,7 +95,7 @@ export default function Play() {
         let pattern = Array.from({ length: number.length }, (_, index) => index);
         setRevealingPattern(shuffleArray(pattern));
         setLoading(false);
-    }, []);
+    }
 
     function revealNext(currentIndex: number, isOpen: boolean) {
         console.log(currentIndex, isOpen);
@@ -107,11 +120,40 @@ export default function Play() {
                 ...level,
                 isRevealed: true
             });
+            setTimerStarted(true);
+        }
+    }
+
+    function calculateTotalScore() {
+        let total = 0;
+        for (let i = 0; i < progress.length; i++) {
+            total += progress[i].score;
+        }
+        return total;
+    }
+
+    async function saveGame() {
+        const response = await fetch(`${process.env.API_ENDPOINT}/savegame`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'auth-token': localStorage.getItem('auth-token') || ""
+            },
+            body: JSON.stringify({
+                score: totalScore
+            }),
+        });
+
+        if (response.ok) {
+            toast.success("Game saved successfully");
+        }
+        else {
+            toast.error("Failed to save game");
         }
     }
 
     return (
-        <div className="flex min-h-screen flex-col items-center mt-20 p-24">
+        <div className="flex flex-col items-center justify-center mt-20 p-24">
 
             {loading
                 ? (
@@ -127,127 +169,169 @@ export default function Play() {
                 )
                 : (
                     <>
-                        <div className="mb-40">
-                            <div className="flex flex-row items-center justify-center text-sm m-8 rounded-[10px] bg-[#D9D9D9]">
-                                <div className="flex flex-row justify-around rounded-[10px] p-3 bg-[var(--sub-alt-color)] text-[var(--sub-color)]">
-                                    <div className="grid grid-col-3 grid-flow-col gap-4">
-                                        <div className="flex flex-row">
-                                            <div>Level: </div>
-                                            <div className="mx-2">{level.level}</div>
-                                        </div>
-                                        <div className="flex flex-row">
-                                            <div>Guess Left: </div>
-                                            <div className="mx-2">{level.guess_left}</div>
-                                        </div>
-                                        <div className="flex flex-row">
-                                            <div>Hints Left: </div>
-                                            <div className="mx-2">{level.hints_left}</div>
-                                        </div>
-                                    </div>
-
-                                    <div className="w-1 mx-4 rounded h-5 bg-[var(--bg-num-block-hide)]"></div>
-
-                                    <div className="flex flex-row">
-                                        <div className="ml-2">Score: </div>
-                                        <div className="mx-2">{level.score}</div>
-                                    </div>
-
-                                    <div className="w-1 mx-4 rounded h-5 bg-[var(--bg-num-block-hide)]"></div>
-
-                                    <div className="flex flex-row">
-                                        <div>Time Left: </div>
-                                        <div className="mx-2">05:00</div>
-                                    </div>
-                                </div>
-                            </div >
-                        </div>
-                        <div className="flex justify-between">
-                            {
-                                String(level.number).split("").map((item, index) => {
-                                    return (
-                                        <button key={index} disabled={!level.isRevealed} onClick={() => {
-                                            if (level.hints_left > 0) {
-                                                if (level.hints[index]) {
-                                                    toast.info("Hint already revealed");
-                                                }
-                                                else {
-                                                    let newHints: boolean[] = level.hints;
-                                                    newHints[index] = true;
-                                                    setLevel({
-                                                        ...level,
-                                                        hints_left: level.hints_left - 1,
-                                                        hints: newHints
-                                                    });
-                                                    toast.info("Hint Revealed");
-                                                }
-                                            }
-                                            else {
-                                                toast.error("No hints left.");
-                                            }
-
-                                        }}>
-                                            <div key={index} className={`bg-[var(--bg-num-block)] w-14 h-14 rounded-[10px] flex flex-col items-center justify-center mx-2 ` + (currentReveal == index && "border-4 border-green-500 ") + (level.hints[index] && "border-4 border-sky-500")}>
-                                                {(currentReveal == index || level.hints[index])
-                                                    ? (<div className="text-2xl">{item}</div>)
-                                                    : (<div className="bg-[var(--bg-num-block-hide)] w-5 h-5 rounded-full"></div>)
-                                                }
+                        {gameOver
+                            ? <div className="flex flex-col items-center">
+                                <div className="text-4xl">Game Over</div>
+                                <div className="text-xl mt-8">Total Score: {calculateTotalScore()}</div>
+                                <Link href='/'>
+                                    <button className='bg-[#FF0000] text-white text-center rounded-[10px] px-4 py-2 m-2 hover:scale-110 mt-12'>
+                                        Exit Game
+                                    </button>
+                                </Link>
+                            </div>
+                            : <>
+                                <div className="mb-40">
+                                    <div className="flex flex-row items-center justify-center text-sm m-8 rounded-[10px] bg-[#D9D9D9]">
+                                        <div className="flex flex-row justify-around rounded-[10px] p-3 bg-[var(--sub-alt-color)] text-[var(--sub-color)]">
+                                            <div className="grid grid-col-3 grid-flow-col gap-4">
+                                                <div className="flex flex-row">
+                                                    <div>Level: </div>
+                                                    <div className="mx-2">{level.level}</div>
+                                                </div>
+                                                <div className="flex flex-row">
+                                                    <div>Guess Left: </div>
+                                                    <div className="mx-2">{level.guess_left}</div>
+                                                </div>
+                                                <div className="flex flex-row">
+                                                    <div>Hints Left: </div>
+                                                    <div className="mx-2">{level.hints_left}</div>
+                                                </div>
                                             </div>
-                                        </button>
-                                    )
-                                })
-                            }
-                        </div>
-                        <div>
-                            {
-                                level.isRevealed
-                                    ? (
-                                        <div className="flex flex-col items-center">
-                                            <div>
 
-                                                <input className="w-60 rounded-[10px] px-4 py-2 m-2 mt-32 border-slate-400 border-2" onChange={(e) => {
-                                                    setCurrentGuess(e.target.value);
-                                                }}></input>
+                                            <div className="w-1 mx-4 rounded h-5 bg-[var(--bg-num-block-hide)]"></div>
 
-                                                <button className='bg-black text-white text-center rounded-[10px] px-4 py-2 m-2 hover:scale-110 mt-4' onClick={() => {
-                                                    if (level.guess_left > 0) {
-                                                        if (currentGuess == level.number) {
-                                                            toast.success("You guessed it right");
+                                            <div className="flex flex-row">
+                                                <div className="ml-2">Score: </div>
+                                                <div className="mx-2">{level.score}</div>
+                                            </div>
+
+                                            <div className="w-1 mx-4 rounded h-5 bg-[var(--bg-num-block-hide)]"></div>
+
+                                            <div className="flex flex-row">
+                                                <div>Time Left: </div>
+                                                <div className="mx-2"><CountdownTimer startTimer={timerStarted} initialMinutes={level_duration} onComplete={() => {
+                                                    toast.warning("Time's up");
+                                                }} /></div>
+                                            </div>
+                                        </div>
+                                    </div >
+                                </div>
+                                <div className="flex justify-between">
+                                    {
+                                        String(level.number).split("").map((item, index) => {
+                                            return (
+                                                <button key={index} disabled={!level.isRevealed} onClick={() => {
+                                                    if (level.hints_left > 0) {
+                                                        if (level.hints[index]) {
+                                                            toast.info("Hint already revealed");
                                                         }
                                                         else {
-                                                            toast.warning("Wrong guess");
+                                                            let newHints: boolean[] = level.hints;
+                                                            newHints[index] = true;
+                                                            setLevel({
+                                                                ...level,
+                                                                hints_left: level.hints_left - 1,
+                                                                hints: newHints,
+                                                                score: level.score - 10
+                                                            });
+                                                            toast.info("Hint Revealed");
                                                         }
-                                                        setLevel({
-                                                            ...level,
-                                                            guess_left: level.guess_left - 1
-                                                        });
                                                     }
                                                     else {
-                                                        toast.warning("All attempts have been exhausted.")
+                                                        toast.error("No hints left.");
                                                     }
+
                                                 }}>
-                                                    Guess
+                                                    <div key={index} className={`bg-[var(--bg-num-block)] w-14 h-14 rounded-[10px] flex flex-col items-center justify-center mx-2 ` + (currentReveal == index && "border-4 border-green-500 ") + (level.hints[index] && "border-4 border-sky-500")}>
+                                                        {(currentReveal == index || level.hints[index])
+                                                            ? (<div className="text-2xl">{item}</div>)
+                                                            : (<div className="bg-[var(--bg-num-block-hide)] w-5 h-5 rounded-full"></div>)
+                                                        }
+                                                    </div>
                                                 </button>
-                                            </div>
-                                            <div>
-                                                <Link href='/'>
-                                                    <button className='bg-[#FF0000] text-white text-center rounded-[10px] px-4 py-2 m-2 hover:scale-110 mt-12'>
-                                                        Exit Game
-                                                    </button>
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    )
-                                    : (
-                                        <button className='bg-black text-white text-center rounded-[10px] px-4 py-2 m-2 hover:scale-110 mt-32' disabled={revealing} onClick={() => {
-                                            console.log("Current Number: " + level.number);
-                                            setRevealing(true);
-                                            revealNext(-1, false);
-                                        }}>
-                                            Start
-                                        </button>
-                                    )
-                            }
-                        </div>
+                                            )
+                                        })
+                                    }
+                                </div>
+                                <div>
+                                    {
+                                        level.isRevealed
+                                            ? (
+                                                <div className="flex flex-col items-center">
+                                                    <div>
+
+                                                        <input className="w-60 rounded-[10px] px-4 py-2 m-2 mt-32 border-slate-400 border-2" onChange={(e) => {
+                                                            setCurrentGuess(e.target.value);
+                                                        }}></input>
+
+                                                        <button className='bg-black text-white text-center rounded-[10px] px-4 py-2 m-2 hover:scale-110 mt-4' onClick={() => {
+
+                                                            if (currentGuess.length != level.number.length) {
+                                                                toast.error("Please check the length of the number.");
+                                                                return;
+                                                            }
+
+                                                            if (level.guess_left > 0) {
+                                                                if (currentGuess == level.number) {
+                                                                    setTimerStarted(false);
+                                                                    toast.success(`+${level.score} points`);
+                                                                    progress.push(level);
+                                                                    setTotalScore(totalScore + level.score);
+                                                                    setLoading(true);
+                                                                    toast.info(`Level ${level.level} completed. Proceeding to next level.`);
+                                                                    generateLevel(level.number.length + 1);
+                                                                }
+                                                                else {
+                                                                    toast.warning("Wrong guess");
+                                                                    if (level.guess_left == 1) {
+                                                                        setLevel({
+                                                                            ...level,
+                                                                            score: 0,
+                                                                        });
+                                                                        setgameOver(true);
+                                                                        saveGame();
+                                                                    }
+                                                                    else if (level.guess_left <= 4) {
+                                                                        setLevel({
+                                                                            ...level,
+                                                                            score: level.score - 10,
+                                                                        });
+                                                                    }
+                                                                    setLevel({
+                                                                        ...level,
+                                                                        guess_left: level.guess_left - 1
+                                                                    });
+                                                                }
+                                                            }
+                                                            else {
+                                                                toast.warning("All attempts have been exhausted.")
+                                                            }
+                                                        }}>
+                                                            Guess
+                                                        </button>
+                                                    </div>
+                                                    <div>
+                                                        <Link href='/'>
+                                                            <button className='bg-[#FF0000] text-white text-center rounded-[10px] px-4 py-2 m-2 hover:scale-110 mt-12'>
+                                                                Exit Game
+                                                            </button>
+                                                        </Link>
+                                                    </div>
+                                                </div>
+                                            )
+                                            : (
+                                                <button className='bg-black text-white text-center rounded-[10px] px-4 py-2 m-2 hover:scale-110 mt-32' disabled={revealing} onClick={() => {
+                                                    console.log("Current Number: " + level.number);
+                                                    setRevealing(true);
+                                                    revealNext(-1, false);
+                                                }}>
+                                                    Start
+                                                </button>
+                                            )
+                                    }
+                                </div>
+                            </>
+                        }
                     </>
                 )
             }
