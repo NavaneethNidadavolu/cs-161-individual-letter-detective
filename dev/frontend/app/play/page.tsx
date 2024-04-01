@@ -44,7 +44,7 @@ function generateRandomNumber(length: number) {
 export default function Play() {
 
     const start_length = 5;
-    const level_duration = 1;
+    const level_duration = 5;
     const progress: LevelData[] = [];
     const prevNumbers = new Set<string>();
     const [timerStarted, setTimerStarted] = useState(false);

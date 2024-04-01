@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 const CountdownTimer = ({ initialMinutes = 5, startTimer, onComplete }: { initialMinutes: number, startTimer: boolean, onComplete: () => void }) => {
 
     const [time, setTime] = useState({
-        minutes: initialMinutes,
+        minutes: 1,
         seconds: 0
     });
 
@@ -30,7 +30,7 @@ const CountdownTimer = ({ initialMinutes = 5, startTimer, onComplete }: { initia
 
     return (
         <div>
-            <h1>{`${time.minutes}:${time.seconds < 10 ? '0' : ''}${time.seconds}`}</h1>
+            <h1 className={(time.minutes == 0 && time.seconds <= 59) ? "text-rose-500" : " "} >{`${time.minutes}:${time.seconds < 10 ? '0' : ''}${time.seconds}`}</h1>
         </div>
     );
 };
