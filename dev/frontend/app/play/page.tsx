@@ -202,7 +202,7 @@ export default function Play() {
 
                                             <div className="flex flex-row">
                                                 <div className="ml-2">Score: </div>
-                                                <div className="mx-2">{level.score}</div>
+                                                <div className="mx-2">{totalScore}</div>
                                             </div>
 
                                             <div className="w-1 mx-4 rounded h-5 bg-[var(--bg-num-block-hide)]"></div>
