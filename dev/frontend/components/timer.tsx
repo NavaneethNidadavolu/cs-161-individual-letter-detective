@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 const CountdownTimer = ({ initialMinutes = 5, startTimer, onComplete }: { initialMinutes: number, startTimer: boolean, onComplete: () => void }) => {
 
     const [time, setTime] = useState({
-        minutes: 1,
+        minutes: initialMinutes,
         seconds: 0
     });
 
