@@ -149,6 +149,7 @@ export default function Play() {
             body: JSON.stringify({
                 score: calculateTotalScore()
             }),
+            mode: 'cors'
         });
 
         if (response.ok) {
