@@ -1,7 +1,7 @@
 import os
 import jwt
 import psycopg2
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from flask import Flask, request
 from dotenv import load_dotenv
 # Load environment variables from .env file
@@ -141,6 +141,7 @@ def leaderboard():
 
 # Define the user score board route
 @app.route('/scores')
+@cross_origin()
 def scores():
     
 	print(request.decoded_token.get('sub'))
