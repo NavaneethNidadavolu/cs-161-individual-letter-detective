@@ -1,10 +1,11 @@
 'use client'
 
+import Track from '@/components/track';
 import Link from 'next/link';
 
 import { toast } from 'sonner'
 
-export default function Home() {
+export default function Home(context: any) {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
@@ -19,6 +20,7 @@ export default function Home() {
         </Link>
       </div>
 
+      <Track context={context} />
     </main>
   );
 }

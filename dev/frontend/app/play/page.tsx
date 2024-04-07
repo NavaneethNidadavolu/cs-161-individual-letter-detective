@@ -147,6 +147,7 @@ export default function Play() {
                 'auth-token': localStorage.getItem('auth-token') || ""
             },
             body: JSON.stringify({
+                level: progress.length + 1,
                 score: calculateTotalScore()
             }),
             mode: 'cors'
