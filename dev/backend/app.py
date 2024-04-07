@@ -54,7 +54,7 @@ def home():
 # Define the middleware to read JWT from header
 @app.before_request
 def read_jwt_from_header():
-	if request.path == '/savegame':
+	if request.path == '/savegame' or request.path == '/scores':
 		auth_token = request.headers.get('auth-token')
 		if auth_token:
 			try:
@@ -71,8 +71,6 @@ def read_jwt_from_header():
 # Define the savegame route
 @app.route('/savegame', methods=['POST'])
 def saveGame():
-    
-	print(request.decoded_token)
 
 	connection, cursor = connect_to_db()
 	
@@ -85,13 +83,16 @@ def saveGame():
 		
 		if not body:
 			return {'message': 'body required'}, 500
-		
+
+		if not body.get('level'):
+			return {'message': 'Invalid body'}, 500
+
 		if not body.get('score'):
 			return {'message': 'Invalid body'}, 500
 		
-		data = [(request.decoded_token.get('sub'), request.decoded_token.get('name'), request.decoded_token.get('picture'), body.get('score'))]
+		data = [(request.decoded_token.get('sub'), request.decoded_token.get('name'), request.decoded_token.get('picture'), body.get('level'), body.get('score'))]
 		print(data)
-		cursor.executemany("INSERT INTO numrecall_users (user_id, user_name, user_pic, score) VALUES (%s, %s, %s, %s)", data)
+		cursor.executemany("INSERT INTO numrecall_users (user_id, user_name, user_pic, level, score) VALUES (%s, %s, %s, %s)", data)
 		connection.commit()
 		
 		return {'message': 'Game data saved successfully'}, 200
@@ -135,12 +136,50 @@ def leaderboard():
 	finally:
 		# Close the database connection
 		close_db_connection(connection, cursor)
+  
+
+
+# Define the user score board route
+@app.route('/scores')
+def scores():
+    
+	print(request.decoded_token.get('sub'))
+
+	connection, cursor = connect_to_db()
+ 
+	if connection is None or cursor is None:
+		return {'message': 'Error connecting to the database'}, 500
+
+	try:
+		# Execute the query to fetch data from the numrecall table
+		cursor.execute("SELECT user_id, user_name, level, score FROM numrecall_users where user_id = '{}'  ORDER BY score DESC LIMIT 10".format(request.decoded_token.get('sub')))
+  
+  		# Fetch all the rows from the result set
+		rows = cursor.fetchall()
+		# Create a list to store the leaderboard data
+		userScores = []
+		# Iterate over the rows and create a dictionary for each row
+		for row in rows:
+			userScores.append({
+				'user_id': row[0],
+				'user_name': row[1],
+    			'level': row[2],
+    			'score': row[3]
+			})
+		# Return the userScores data as JSON
+		return {'scores': userScores}, 200
+	except (Exception, psycopg2.Error) as error:
+		print(f"Error fetching data from the database: {error}")
+		return {'message': 'Error fetching data from the database'}, 500
+	finally:
+		# Close the database connection
+		close_db_connection(connection, cursor)
 
 
 # Run the Flask application
 if __name__ == '__main__':
     connection, cursor = connect_to_db()    
     try:
-        app.run(host='0.0.0.0', port=4000, debug=False)
+        app.run(host='0.0.0.0', port=4000, debug=True)
     finally:
         close_db_connection(connection, cursor)

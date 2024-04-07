@@ -6,6 +6,7 @@ CREATE TABLE numrecall_users (
     user_name VARCHAR(255),
     user_pic VARCHAR(255),
     score INT,
+    level INT,
     PRIMARY KEY (user_id, game_id)
 );
 
