@@ -2,7 +2,7 @@ import os
 import jwt
 import psycopg2
 from flask_cors import CORS
-from flask import Flask, request, Response, current_app
+from flask import Flask, request
 from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
@@ -16,12 +16,6 @@ POSTGRES_DATABASE = os.getenv("POSTGRES_DATABASE")
 # Initialize Flask application
 app = Flask(__name__)
 CORS(app)
-
-@current_app.before_request
-def basic_authentication():
-    if request.method.lower() == 'options':
-        return Response()
-
 
 # Define database connection parameters
 db_params = {
