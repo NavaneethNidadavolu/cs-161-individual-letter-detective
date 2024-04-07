@@ -15,7 +15,7 @@ POSTGRES_DATABASE = os.getenv("POSTGRES_DATABASE")
 
 # Initialize Flask application
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*", "methods": "*", "headers": "*"}})
+CORS(app)
 
 # Define database connection parameters
 db_params = {
