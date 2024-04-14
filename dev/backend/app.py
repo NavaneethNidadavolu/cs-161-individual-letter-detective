@@ -51,15 +51,13 @@ def home():
     return {'message': 'Hello World'}, 200
 
 
-# Define the middleware to read JWT from header
-@app.before_request
-def read_jwt_from_header():
-	if request.path == '/savegame' or request.path == '/scores':
+# Define a function to read JWT from header
+def get_decoded_token(request):
 		auth_token = request.headers.get('auth-token')
 		if auth_token:
 			try:
 				decoded_token = jwt.decode(auth_token, options={"verify_signature": False})
-				request.decoded_token = decoded_token
+				return decoded_token, 200
 
 			except jwt.exceptions.InvalidTokenError as error:
 				print(f"Error decoding JWT: {error}")
@@ -71,6 +69,11 @@ def read_jwt_from_header():
 # Define the savegame route
 @app.route('/savegame', methods=['POST'])
 def saveGame():
+
+	token, err = get_decoded_token(request)
+ 
+	if err != 200:
+		raise Exception(err)
 
 	connection, cursor = connect_to_db()
 	
@@ -90,7 +93,7 @@ def saveGame():
 		if not body.get('score'):
 			return {'message': 'Invalid body'}, 500
 		
-		data = [(request.decoded_token.get('sub'), request.decoded_token.get('name'), request.decoded_token.get('picture'), body.get('level'), body.get('score'))]
+		data = [(token.get('sub'), token.get('name'), token.get('picture'), body.get('level'), body.get('score'))]
 		print(data)
 		cursor.executemany("INSERT INTO numrecall_users (user_id, user_name, user_pic, level, score) VALUES (%s, %s, %s, %s)", data)
 		connection.commit()
@@ -143,7 +146,12 @@ def leaderboard():
 @app.route('/scores')
 def scores():
     
-	print(request.decoded_token.get('sub'))
+	token, err = get_decoded_token(request)
+ 
+	if err != 200:
+		raise Exception(err)
+
+	print(token.get('sub'))
 
 	connection, cursor = connect_to_db()
  
@@ -152,7 +160,7 @@ def scores():
 
 	try:
 		# Execute the query to fetch data from the numrecall table
-		cursor.execute("SELECT user_id, user_name, level, score FROM numrecall_users where user_id = '{}'  ORDER BY score DESC LIMIT 10".format(request.decoded_token.get('sub')))
+		cursor.execute("SELECT user_id, user_name, level, score FROM numrecall_users where user_id = '{}'  ORDER BY score DESC LIMIT 10".format(token.get('sub')))
   
   		# Fetch all the rows from the result set
 		rows = cursor.fetchall()
