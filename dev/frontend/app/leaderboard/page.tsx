@@ -1,7 +1,3 @@
-"use client";
-
-import UserScoreBoard from "@/components/userScore";
-
 async function getLeaderboardData() {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/leaderboard`, {
         method: 'GET',
@@ -67,7 +63,6 @@ export default async function Leaderboard() {
                     }
                 </div>
             </div>
-            <UserScoreBoard />
         </div>
     )
 }

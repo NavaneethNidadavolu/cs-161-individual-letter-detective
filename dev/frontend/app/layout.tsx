@@ -27,7 +27,7 @@ export default function RootLayout({
           <NavBar />
           {children}
           <Analytics />
-          <Toaster richColors position="top-right" />
+          <Toaster expand={true} richColors position="top-right" />
         </body>
       </GoogleOAuthProvider>
     </html>
