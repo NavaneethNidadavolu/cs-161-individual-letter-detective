@@ -63,9 +63,9 @@ def read_jwt_from_header():
 
 			except jwt.exceptions.InvalidTokenError as error:
 				print(f"Error decoding JWT: {error}")
-				return {'message': 'Invalid auth-token'}, 401
+				return {'message': 'Invalid auth-token'}, 500
 		else:
-			return {'message': 'auth-token not found'}, 401
+			return {'message': 'auth-token not found'}, 500
 
 
 # Define the savegame route
