@@ -87,11 +87,11 @@ def saveGame():
 		if not body:
 			return {'message': 'body required'}, 500
 
-		if not body.get('level'):
-			return {'message': 'Invalid body'}, 500
+		if 'level' not in body:
+			return {'message': 'Invalid body: level is missing'}, 500
 
-		if not body.get('score'):
-			return {'message': 'Invalid body'}, 500
+		if 'score' not in body:
+			return {'message': 'Invalid body: score is missing'}, 500
 		
 		data = [(token.get('sub'), token.get('name'), token.get('picture'), body.get('level'), body.get('score'))]
 		print(data)
