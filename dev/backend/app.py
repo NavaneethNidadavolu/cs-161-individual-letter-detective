@@ -95,7 +95,7 @@ def saveGame():
 		
 		data = [(token.get('sub'), token.get('name'), token.get('picture'), body.get('level'), body.get('score'))]
 		print(data)
-		cursor.executemany("INSERT INTO numrecall_users (user_id, user_name, user_pic, level, score) VALUES (%s, %s, %s, %s)", data)
+		cursor.executemany("INSERT INTO numrecall_users (user_id, user_name, user_pic, level, score) VALUES (%s, %s, %s, %s, %s)", data)
 		connection.commit()
 		
 		return {'message': 'Game data saved successfully'}, 200
