@@ -124,13 +124,18 @@ def leaderboard():
 		# Create a list to store the leaderboard data
 		leaderboard = []
 		# Iterate over the rows and create a dictionary for each row
+		rank = 1
 		for row in rows:
 			leaderboard.append({
+				'rank': rank,
 				'user_id': row[0],
 				'user_name': row[1],
     			'user_pic': row[2],
     			'score': row[3]
 			})
+   
+			rank += 1
+   
 		# Return the leaderboard data as JSON
 		return {'leaderboard': leaderboard}, 200
 	except (Exception, psycopg2.Error) as error:
