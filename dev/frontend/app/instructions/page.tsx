@@ -21,7 +21,7 @@ export default async function Instructions() {
 
             <NavBar />
 
-            <div className="h-screen">
+            <div className="mb-16 p-8">
                 <div className="mt-16">
                     <div className="flex flex-col items-center">
                         <div className="bg-[#D9D9D9] rounded-[10px]">
@@ -33,7 +33,7 @@ export default async function Instructions() {
                         </div>
 
 
-                        <div className="rounded-[10px] bg-white my-8 m-auto w-2/6 p-8">
+                        <div className="rounded-[10px] bg-white my-8 m-auto w-3/6 p-8">
 
                             <div className="mt-2">
                                 The key objective is to exercise your memory by recalling and accurately entering the displayed number sequence within the allotted time while using as few hints as possible to achieve a higher score.
