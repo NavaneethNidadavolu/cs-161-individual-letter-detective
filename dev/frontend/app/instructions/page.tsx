@@ -40,7 +40,7 @@ export default async function Instructions() {
                             </div>
 
                             <div className="mt-8">
-                                <b>Step 1:</b> Press the "Start" button to begin a new game.
+                                <b>Step 1:</b> Press the &quot;Start&quot; button to begin a new game.
                             </div>
                             <div className="flex flex-row items-center justify-around p-4">
                                 <div>
@@ -54,7 +54,7 @@ export default async function Instructions() {
                                 <b>Step 2:</b> After the numbers disappear, you can you the hints by clicking on the number box to reveal it.
                             </div>
                             <div>
-                                <i>"You only have 2 hints per round"</i>
+                                <i>&quot;You only have 2 hints per round&quot;</i>
                             </div>
                             <div className="flex flex-row items-center justify-around p-4">
                                 <div>
@@ -62,7 +62,7 @@ export default async function Instructions() {
                                 </div>
                             </div>
                             <div className="mt-8">
-                                <b>Step 3:</b> Enter your guess for the number sequence in the "Guess" box.
+                                <b>Step 3:</b> Enter your guess for the number sequence in the &quot;Guess&quot; box.
                             </div>
                             <div className="flex flex-row items-center justify-around p-4">
                                 <div>
