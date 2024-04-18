@@ -1,3 +1,5 @@
+import NavBar from "@/components/navbar";
+
 async function getLeaderboardData() {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/leaderboard`, {
         method: 'GET',
@@ -23,8 +25,9 @@ export default async function Leaderboard() {
     const data: LeaderboardData = await (await getLeaderboardData()).json()
 
     return (
-        <div>
-            <div className="flex flex-col justify-between items-center mt-16">
+        <div className="h-full">
+            <NavBar />
+            <div className="h-screen flex flex-col items-center mt-16">
                 <div className="bg-[#D9D9D9] rounded-[10px]">
                     <div className="flex flex-row justify-around rounded-[10px] p-3 bg-[var(--sub-alt-color)] text-[var(--sub-color)]">
                         <div className="flex flex-row">
@@ -32,7 +35,7 @@ export default async function Leaderboard() {
                         </div>
                     </div>
                 </div>
-                <div className="border max-h-96 mt-16 rounded-[10px] border-black overflow-auto w-5/6 sm:w-4/12">
+                <div className=" mt-16 rounded-[10px] border-black w-5/6 sm:w-4/12">
                     <div className="w-11/12 rounded-[10px] bg-white my-4 m-auto p-2">
                         <div className="flex flex-row justify-between items-center p-2">
                             <div>Rank</div>

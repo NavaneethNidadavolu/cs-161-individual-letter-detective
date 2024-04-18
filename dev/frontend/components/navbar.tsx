@@ -48,16 +48,6 @@ export default function NavBar() {
                     <Link href="/">
                         <Image src={Logo} alt="NumRecall Logo" height={40} ></Image>
                     </Link>
-                    <Link href="/leaderboard">
-                        <div className='mx-2 p-2'>
-                            <FontAwesomeIcon icon={faCrown} className='text-[var(--sub-color)] hover:text-[var(--text-color)]'></FontAwesomeIcon>
-                        </div>
-                    </Link>
-                    <Link href="/info">
-                        <div className='mx-2 p-2'>
-                            <FontAwesomeIcon icon={faInfo} className='text-[var(--sub-color)] hover:text-[var(--text-color)]'></FontAwesomeIcon>
-                        </div>
-                    </Link>
                 </div>
                 {
                     login && Object.keys(login).length > 0
