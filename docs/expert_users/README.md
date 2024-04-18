@@ -29,3 +29,72 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+# Backend
+
+Step 1: create python virtual environment
+
+```bash
+cd cs-161-individual-letter-detective/dev/backend
+
+python3 -m venv venv
+
+source venv/bin/activate
+```
+
+Step 2: Install pip packages
+
+```bash
+pip install -r requirements.txt
+```
+
+
+Step 4: Set up the environment variables
+
+create a file called .env
+
+```bash (You can get the values from any hosted service (I used vercel))
+POSTGRES_USER=
+POSTGRES_HOST=
+POSTGRES_PASSWORD=
+POSTGRES_DATABASE=
+```
+
+Step 3: Run the backend server
+
+```bash
+python app.py
+```
+
+
+Backend Server Run on [http://localhost:4000](http://localhost:4000)
+
+
+(Optional) Run Dokerized Version
+
+Prerequisites
+    - Have docker installed on your pc
+
+
+Step 1: 
+
+```bash cd to backend path
+cd /dev/backend
+```
+
+Step 2: Set up the environment variables
+
+create a file called .env
+
+```bash (You can get the values from any hosted service (I used vercel))
+POSTGRES_USER=
+POSTGRES_HOST=
+POSTGRES_PASSWORD=
+POSTGRES_DATABASE=
+```
+
+Step 3: Run docker
+
+```bash
+docker compose up -d
+```
