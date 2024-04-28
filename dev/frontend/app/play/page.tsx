@@ -132,14 +132,6 @@ export default function Play() {
         }
     }
 
-    function calculateTotalScore() {
-        let total = 0;
-        for (let i = 0; i < progress.length; i++) {
-            total += progress[i].score;
-        }
-        return total;
-    }
-
     async function saveGame() {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/savegame`, {
             method: 'POST',
@@ -149,7 +141,7 @@ export default function Play() {
             },
             body: JSON.stringify({
                 level: progress.length + 1,
-                score: calculateTotalScore()
+                score: totalScore
             }),
             mode: 'cors'
         });
@@ -189,7 +181,7 @@ export default function Play() {
                             {gameOver
                                 ? <div className="flex flex-col items-center">
                                     <div className="text-4xl">Game Over</div>
-                                    <div className="text-xl mt-8">Total Score: {calculateTotalScore()}</div>
+                                    <div className="text-xl mt-8">Total Score: {totalScore}</div>
                                     <Link href='/'>
                                         <button className='bg-[#FF0000] text-white text-center rounded-[10px] px-4 py-2 m-2 hover:scale-110 mt-12'>
                                             Exit Game
@@ -295,6 +287,7 @@ export default function Play() {
                                                                         setTimerStarted(false);
                                                                         toast.success(`+${level.score} points`);
                                                                         progress.push(level);
+                                                                        console.log(totalScore + level.score);
                                                                         setTotalScore(totalScore + level.score);
                                                                         setLoading(true);
                                                                         toast.info(`Level ${level.level} completed. Proceeding to next level.`);
