@@ -25,6 +25,9 @@ cd cs-161-individual-letter-detective/dev/frontend
 
 npm install
 
+create .env.local file and add the following content
+NEXT_PUBLIC_API_ENDPOINT=https://api-numrecall.ddns.net
+
 npm run dev
 ```
 
@@ -54,10 +57,10 @@ Step 4: Set up the environment variables
 create a file called .env
 
 ```bash (You can get the values from any hosted service (I used vercel))
-POSTGRES_USER=
-POSTGRES_HOST=
-POSTGRES_PASSWORD=
-POSTGRES_DATABASE=
+POSTGRES_USER="default"
+POSTGRES_HOST="ep-crimson-grass-a4p8i07j-pooler.us-east-1.aws.neon.tech"
+POSTGRES_PASSWORD="kPz2BOEetj6W"
+POSTGRES_DATABASE="verceldb"
 ```
 
 Step 3: Run the backend server
@@ -87,10 +90,10 @@ Step 2: Set up the environment variables
 create a file called .env
 
 ```bash (You can get the values from any hosted service (I used vercel))
-POSTGRES_USER=
-POSTGRES_HOST=
-POSTGRES_PASSWORD=
-POSTGRES_DATABASE=
+POSTGRES_USER="default"
+POSTGRES_HOST="ep-crimson-grass-a4p8i07j-pooler.us-east-1.aws.neon.tech"
+POSTGRES_PASSWORD="kPz2BOEetj6W"
+POSTGRES_DATABASE="verceldb"
 ```
 
 Step 3: Run docker
