@@ -6,6 +6,10 @@
 
 Github Repository: https://github.com/navaneethnivol/cs-161-individual-letter-detective 
 
+### Deployed Link:
+
+URL: https://numrecall.vercel.app
+
 ### Milestones with deadlines
 
 M1 (2/6 - 2/15): Setting up Github and Flask App
